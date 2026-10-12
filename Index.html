@@ -1,1 +1,72 @@
-let MY_TELEGRAM_USERNAME = "usaagent0";
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Saanp Sidhi - Coin Wala</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#ffcc00;color:#000;overflow-x:hidden}
+.header{background:#ff8c00;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #000;position:sticky;top:0;z-index:20}
+.logo{font-weight:900;font-size:16px}
+.bal{background:#000;color:#ffcc00;padding:6px 12px;border-radius:20px;font-weight:900;font-size:12px;border:2px solid #000}
+.add{background:#00c851;color:#fff;border:none;padding:8px 14px;border-radius:20px;font-weight:900;cursor:pointer;border:2px solid #000;font-size:12px}
+.box{max-width:420px;margin:auto;padding:10px}
+.board{width:100%;aspect-ratio:1;background:#fff9c4;border:4px solid #000;border-radius:12px;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);position:relative;overflow:hidden}
+.cell{border:0.5px solid rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;position:relative}
+.cell.snake{background:#ff8a80}
+.cell.ladder{background:#a5d6a7}
+.pawn{position:absolute;width:26px;height:26px;border-radius:50%;border:3px solid #000;z-index:10;transition:all 0.4s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;box-shadow:0 2px 5px rgba(0,0,0,0.4)}
+.p1{background:#ff0000}
+.p2{background:#0066ff}
+.diceBox{background:#000;color:#ffcc00;border-radius:15px;padding:15px;margin:10px 0;text-align:center;border:3px solid #000}
+.dice{width:80px;height:80px;background:#fff;border:3px solid #000;border-radius:15px;display:inline-flex;align-items:center;justify-content:center;font-size:42px;font-weight:900;cursor:pointer;user-select:none}
+.roll{width:100%;padding:16px;background:#ff0000;color:#fff;border:3px solid #fff;border-radius:12px;font-weight:900;font-size:20px;margin-top:10px;cursor:pointer}
+.roll:disabled{background:#666}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99;justify-content:center;align-items:center;padding:15px}
+.modal.active{display:flex}
+.mbox{background:#fff;border:4px solid #000;border-radius:15px;padding:20px;width:100%;max-width:360px;text-align:center;box-shadow:0 10px 0 #000}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo">🐍 SNAKES & LADDERS</div>
+<div style="display:flex;align-items:center">
+<div class="bal"><span id="cName">COIN</span>: <span id="bal">5000</span></div>
+<button class="add" onclick="openTelegramContact()">+ ADD</button>
+</div>
+</div>
+
+<div class="box">
+<div class="board" id="board"></div>
+
+<div style="display:flex;gap:8px;margin:10px 0">
+<div style="flex:1;background:#000;color:#ffcc00;padding:10px;border-radius:10px;text-align:center;font-weight:900;font-size:12px">P1 🔴 <span id="p1">1</span></div>
+<div style="flex:1;background:#000;color:#ffcc00;padding:10px;border-radius:10px;text-align:center;font-weight:900;font-size:12px">P2 🔵 <span id="p2">1</span></div>
+<div style="flex:1;background:#000;color:#ffcc00;padding:10px;border-radius:10px;text-align:center;font-weight:900;font-size:12px">BET <span id="bi">100</span></div>
+</div>
+
+<div class="diceBox">
+<div class="dice" id="dice" onclick="roll()">🎲</div>
+<div style="margin:6px;font-size:13px;color:#fff">TURN: <b id="turn" style="color:#ffcc00">PLAYER 1 🔴</b></div>
+<button class="roll" id="rb" onclick="roll()">🎲 ROLL - <span id="rbBet">100</span> COIN</button>
+<div style="display:flex;gap:6px;margin-top:10px">
+<button onclick="setBet(100)" style="flex:1;padding:10px;background:#ffcc00;border:3px solid #fff;border-radius:8px;font-weight:900">100</button>
+<button onclick="setBet(500)" style="flex:1;padding:10px;background:#ffcc00;border:3px solid #fff;border-radius:8px;font-weight:900">500</button>
+<button onclick="setBet(1000)" style="flex:1;padding:10px;background:#ffcc00;border:3px solid #fff;border-radius:8px;font-weight:900">1000</button>
+</div>
+</div>
+</div>
+
+<div class="modal" id="m1">
+<div class="mbox">
+<h2 style="margin-bottom:8px">💰 COIN KHATAM?</h2>
+<p style="font-weight:bold;margin-bottom:10px;font-size:14px">Telegram pe message karo, turant COIN add ho jayega!</p>
+<div style="background:#ffcc00;border:3px solid #000;border-radius:10px;padding:12px;margin:12px 0">
+<div style="font-size:12px">Contact Telegram:</div>
+<b style="font-size:18px">📲 @usaagent0</b>
+</div>
+<button onclick="goTelegram()" style="width:100%;padding:14px;background:#0088cc;color:#fff;border:3px solid #000;border-radius:10px;font-weight:900;font-size:16px">📲 TELEGRAM KHOLO - ADD COIN</button>
+<button onclick="document.getElementById('m1').classList.remove('active')" style="width:100%;padding:10px;background:#000;color:#fff;border:none;border-radius:8px;margin-top:8px;font-weight:900">CLOSE</button>
+<div style="height:1px;background:#000;margin:14
